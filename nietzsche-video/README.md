@@ -7,6 +7,7 @@ Vídeo de ~13min38s (1080p) para canal de filosofia.
 - `nietzsche_legendas_ptBR.srt` — legendas para subir no YouTube
 - `thumbnail.jpg` — miniatura 1280x720
 - `descricao_youtube.txt` — título, descrição, capítulos e créditos das imagens
+- `nietzsche_roteiro.pdf` — roteiro completo da narração (gerado por `roteiro_pdf.py`)
 
 ## Como regenerar
 ```
