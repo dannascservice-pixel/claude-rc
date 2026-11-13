@@ -8,12 +8,16 @@ def font(n, s, w):
     f = ImageFont.truetype(os.path.join(HERE, "fonts", n), s); f.set_variation_by_axes([w]); return f
 # ---- thumbnail
 W, H = 1280, 720
-img = Image.open(CR["Munch - Friedrich Nietzsche, 1905–1906, MM.M.00254.jpg"]["file"]).convert("RGB")
-img = ImageOps.fit(img, (W, H), Image.LANCZOS, centering=(0.5, 0.35))
+src = Image.open(CR["Edvard Munch - Friedrich Nietzsche - MM.M.00724 - Munch Museum.jpg"]["file"]).convert("RGB")
+# retrato de Munch à direita, ocupando a altura toda, rosto em destaque
+crop = src.crop((0, int(src.height * 0.12), src.width, int(src.height * 0.62)))
+ph = H; pw = int(crop.width * ph / crop.height)
+img = Image.new("RGB", (W, H), (12, 10, 8)); img.paste(crop.resize((pw, ph), Image.LANCZOS), (W - pw + 40, 0))
 g = ImageOps.colorize(ImageOps.grayscale(img), (10, 8, 6), (120, 90, 60), (250, 225, 185))
 img = ImageEnhance.Contrast(Image.blend(g, img, 0.35)).enhance(1.25)
-grad = Image.linear_gradient("L").rotate(90).resize((W, H))  # escurece o lado esquerdo
-img = Image.composite(Image.new("RGB", (W, H), 0), img, grad.point(lambda v: int(v * 0.85)))
+grad = Image.linear_gradient("L").rotate(90).resize((W, H))  # 255 à esquerda -> escurece o lado do texto
+mask = grad.point(lambda v: int(max(0, min(255, (v - 70) * 1.6))))
+img = Image.composite(Image.new("RGB", (W, H), (10, 8, 6)), img, mask)
 d = ImageDraw.Draw(img)
 def outline(xy, t, f, fill):
     d.text(xy, t, font=f, fill=fill, stroke_width=4, stroke_fill=(0, 0, 0))
@@ -41,7 +45,7 @@ lines += ["", "Obras citadas: O Nascimento da Tragédia (1872), A Gaia Ciência 
  "#Nietzsche #Filosofia #EternoRetorno #AlémDoHomem #DeusEstáMorto", "",
  "CRÉDITOS DAS IMAGENS (Wikimedia Commons)"]
 for f, c in sorted(CR.items()):
-    lines.append(f"- {f.rsplit('.',1)[0]} — {c['artist'] or 'autor desconhecido'} — {c['license']} — {c['page']}")
+    lines.append(f"- {f.rsplit('.',1)[0]} — {(c['artist'] if c['artist'] and 'Unknown' not in c['artist'] else 'autor desconhecido')} — {c['license']} — {c['page']}")
 lines += ["", "Música: trilha ambiente original sintetizada para este vídeo.", "Narração: voz sintética (pt-BR)."]
 open(os.path.join(OUT, "descricao_youtube.txt"), "w").write("\n".join(lines) + "\n")
 print("ok")

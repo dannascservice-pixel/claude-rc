@@ -127,7 +127,7 @@ def ov_quote(q, src, path):
 
 def ov_duality(card, path):
     a, ad, b, bd = card
-    im = shade(150); d = ImageDraw.Draw(im)
+    im = shade(215); d = ImageDraw.Draw(im)
     for cx, name, desc in ((W * 0.27, a, ad), (W * 0.73, b, bd)):
         for txt, f, fill, yy in ((name.upper(), F_TITLE(92), (245, 238, 225, 255), H / 2 - 110),
                                  (desc, F_IT(48), GOLD + (255,), H / 2 + 20)):
@@ -312,7 +312,8 @@ def main():
     open(lst, "w").write("".join(f"file '{os.path.join(SEG, m['id'] + '.mp4')}'\n" for m in metas))
     final = os.path.join(OUT, "nietzsche_o_homem_que_transcendeu_e_enlouqueceu.mp4")
     run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-i", wav,
-         "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+         "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-preset", "fast", "-b:v", "8M",
+         "-maxrate", "10M", "-bufsize", "16M", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
          "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-shortest", "-movflags", "+faststart", final])
     print("FINAL", final, f"{total / 60:.1f} min")
 
