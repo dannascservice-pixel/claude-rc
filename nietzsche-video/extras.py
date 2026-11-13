@@ -12,11 +12,11 @@ src = Image.open(CR["Edvard Munch - Friedrich Nietzsche - MM.M.00724 - Munch Mus
 # retrato de Munch à direita, ocupando a altura toda, rosto em destaque
 crop = src.crop((0, int(src.height * 0.12), src.width, int(src.height * 0.62)))
 ph = H; pw = int(crop.width * ph / crop.height)
-img = Image.new("RGB", (W, H), (12, 10, 8)); img.paste(crop.resize((pw, ph), Image.LANCZOS), (W - pw + 40, 0))
+img = Image.new("RGB", (W, H), (12, 10, 8)); img.paste(crop.resize((pw, ph), Image.LANCZOS), (W - pw + 170, 0))
 g = ImageOps.colorize(ImageOps.grayscale(img), (10, 8, 6), (120, 90, 60), (250, 225, 185))
 img = ImageEnhance.Contrast(Image.blend(g, img, 0.35)).enhance(1.25)
-grad = Image.linear_gradient("L").rotate(90).resize((W, H))  # 255 à esquerda -> escurece o lado do texto
-mask = grad.point(lambda v: int(max(0, min(255, (v - 70) * 1.6))))
+grad = ImageOps.mirror(Image.linear_gradient("L").rotate(90).resize((W, H)))  # 255 à esquerda -> escurece o lado do texto
+mask = grad.point(lambda v: int(max(0, min(255, (v - 100) * 4.5))))
 img = Image.composite(Image.new("RGB", (W, H), (10, 8, 6)), img, mask)
 d = ImageDraw.Draw(img)
 def outline(xy, t, f, fill):

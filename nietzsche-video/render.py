@@ -281,18 +281,18 @@ def main():
     with ProcessPoolExecutor(max(1, (os.cpu_count() or 2) // 2)) as ex:
         metas = list(ex.map(render_scene, range(len(SCENES)), SCENES))
     total = sum(m["total"] for m in metas); N = int(round(total * SR)) + SR
-    voice = np.zeros(N, np.float32); srt, n_srt, t = [], 1, 0.0
+    voice = np.zeros(N, np.float32); srt, n_srt, t = [], 1, 0.0; last_end = 0.0
     for m in metas:
         a = load_wav(m["mp3"]); i = int(round((t + m["lead"]) * SR))
         voice[i:i + len(a)] += a[:N - i]
         for b in m["bounds"]:
             chunks = wrap_chunks(b["text"]); L = sum(len(c) for c in chunks)
-            st = t + m["lead"] + b["start"]; span = b["end"] - b["start"]
+            st = max(t + m["lead"] + b["start"], last_end); span = t + m["lead"] + b["end"] - st
             for c in chunks:
                 d = span * len(c) / L
                 half = len(c) // 2; sp = c.rfind(" ", 0, half + 10) if len(c) > 42 else -1
                 txt = c[:sp] + "\n" + c[sp + 1:] if sp > 0 else c
-                srt.append(f"{n_srt}\n{srt_time(st)} --> {srt_time(st + d)}\n{txt}\n"); n_srt += 1; st += d
+                srt.append(f"{n_srt}\n{srt_time(st)} --> {srt_time(st + d)}\n{txt}\n"); n_srt += 1; st += d; last_end = st
         t += m["total"]
     # trilha com ducking sob a voz
     mus = music(N)
